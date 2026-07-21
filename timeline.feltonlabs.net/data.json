@@ -1,0 +1,46 @@
+{
+  "last_updated": "2026-07-21T15:36:09Z",
+  "headline": "Global Conflict Timeline - July 21, 2026",
+  "items": [
+    {
+      "id": 1,
+      "date": "July 21, 2026",
+      "time": "10:30 AM",
+      "title": "US-Iran tensions escalate in Strait of Hormuz",
+      "source": "Reuters",
+      "summary": "Recent military exchanges have increased tensions in the critical shipping lane",
+      "details": "The Strait of Hormuz has seen increased military activity as US and Iranian forces exchange strikes. Tanker traffic has slowed to two-month lows amid safety concerns. Both nations claim defensive actions while accusing the other of escalation.",
+      "category": "middle-east"
+    },
+    {
+      "id": 2,
+      "date": "July 20, 2026",
+      "time": "8:15 PM",
+      "title": "Russia launches major missile strike on Kyiv",
+      "source": "BBC News",
+      "summary": "One of the largest ballistic missile attacks since the war began",
+      "details": "Russian forces launched a significant ballistic missile barrage targeting Kyiv and other Ukrainian cities. Ukrainian air defenses intercepted many missiles, but several hit residential areas causing casualties and infrastructure damage.",
+      "category": "europe"
+    },
+    {
+      "id": 3,
+      "date": "July 20, 2026",
+      "time": "3:45 PM",
+      "title": "Ukraine reports success against Russian Black Sea fleet",
+      "source": "Kyiv Independent",
+      "summary": "Ukrainian drones strike 12 Russian vessels in Black Sea operations",
+      "details": "Ukraine's military announced successful drone strikes against 12 Russian vessels including cargo ships, tankers, and military support ships in the Black Sea. The operation demonstrates Ukraine's growing asymmetric naval capabilities.",
+      "category": "europe"
+    },
+    {
+      "id": 4,
+      "date": "July 19, 2026",
+      "time": "11:20 AM",
+      "title": "China increases military activity near Taiwan",
+      "source": "Al Jazeera",
+      "summary": "People's Liberation Army conducts drills near Taiwan Strait",
+      "details": "Chinese military aircraft and vessels have increased operations near Taiwan, conducting what Beijing calls 'routine training' but Taipei views as intimidation. Taiwan has responded with increased readiness and international appeals for support.",
+      "category": "asia-pacific"
+    }
+  ]
+}

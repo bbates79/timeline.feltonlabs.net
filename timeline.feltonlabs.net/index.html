@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Conflict Timeline</title>
+    <style>
+        :root {
+            --bg-dark: #0f0f0f;
+            --bg-darker: #0a0a0a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --accent-blue: #00b4d8;
+            --accent-red: #ff6b6b;
+            --accent-green: #51cf66;
+            --border-color: #333;
+            --card-bg: #1a1a1a;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+            --transition: all 0.3s ease;
+        }
+        
+        *[data-theme="light"] {
+            --bg-dark: #f8f9fa;
+            --bg-darker: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --accent-blue: #0d6efd;
+            --accent-red: #dc3545;
+            --accent-green: #198754;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .headline {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+        
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-primary);
+        }
+        
+        #loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        #timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            margin: 20px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .timeline-item.left {
+            flex-direction: row-reverse;
+        }
+        
+        .timeline-item.right {
+            flex-direction: row;
+        }
+        
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            background-color: var(--accent-blue);
+            border-radius: 50%;
+            margin: 0 12px;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.2);
+            position: relative;
+        }
+        
+        .timeline-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background-color: var(--bg-darker);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .timeline-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 60%;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .timeline-item.left .timeline-content {
+            margin-right: auto;
+        }
+        
+        .timeline-item.right .timeline-content {
+            margin-left: auto;
+        }
+        
+        .timeline-content h3 {
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .timeline-content h3 svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .meta .source {
+            font-weight: 600;
+        }
+        
+        .timeline-content p {
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+        
+        .timeline-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 0 16px;
+        }
+        
+        .timeline-details.expanded {
+            max-height: 200px;
+            padding: 16px;
+        }
+        
+        .timeline-details p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .expand-btn {
+            background: none;
+            border: none;
+            color: var(--accent-blue);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .expand-btn:hover {
+            background-color: rgba(0, 180, 216, 0.1);
+        }
+        
+        .category-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .category-middle-east { background-color: rgba(255, 107, 107, 0.2); color: var(--accent-red); }
+        .category-europe { background-color: rgba(81, 207, 102, 0.2); color: var(--accent-green); }
+        .category-asia-pacific { background-color: rgba(0, 180, 216, 0.2); color: var(--accent-blue); }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .timeline-item.left {
+                align-items: flex-start;
+            }
+            
+            .timeline-item.right {
+                align-items: flex-start;
+            }
+            
+            .timeline-dot {
+                margin: 0 0 12px 0;
+            }
+            
+            .timeline-content {
+                max-width: 100%;
+            }
+            
+            .timeline-item.left .timeline-content {
+                margin-right: 0;
+            }
+            
+            .timeline-item.right .timeline-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Global Conflict Timeline</h1>
+            <div class="headline" id="headline">Loading latest updates...</div>
+        </header>
+        
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 4.5a1 1 0 011 1V9a1 1 0 01-2 0V5.5a1 1 0 011-1zm5 6.5a1 1 0 01-1 1h-3a1 1 0 010-2h3a1 1 0 011 1zm-4.5 9a1 1 0 011 1v3a1 1 0 01-2 0v-3a1 1 0 011-1zm6.5-4a1 1 0 01-1 1H9a1 1 0 010-2h3.5a1 1 0 011 1zm2-9.5a1 1 0 01-1 1V3a1 1 0 012 0v1.5a1 1 0 01-1 1zm-9 6a1 1 0 01-1 1H4a1 1 0 010-2h3a1 1 0 011 1zm9.5-6a1 1 0 01-1 1v-3a1 1 0 012 0v3a1 1 0 01-1 1zm1 4.5a1 1 0 01-1 1H9a1 1 0 010-2h3.5a1 1 0 011 1zM12 15a3 3 0 100 6 3 3 0 000-6z"/>
+            </svg>
+        </button>
+        
+        <div id="loading">Loading timeline data...</div>
+        <div id="timeline"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const htmlElement = document.documentElement;
+            const loadingEl = document.getElementById('loading');
+            const timelineEl = document.getElementById('timeline');
+            const headlineEl = document.getElementById('headline');
+            
+            // Check for saved theme preference or use system preference
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                htmlElement.setAttribute('data-theme', savedTheme);
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                htmlElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            }
+            
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                htmlElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+            
+            // Fetch timeline data
+            fetch('data.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update headline
+                    headlineEl.textContent = data.headline || 'Global Conflict Timeline';
+                    
+                    // Hide loading indicator
+                    loadingEl.style.display = 'none';
+                    
+                    // Sort items by date (newest first)
+                    const sortedItems = [...data.items].sort((a, b) => {
+                        return new Date(b.date) - new Date(a.date);
+                    });
+                    
+                    // Create timeline items
+                    sortedItems.forEach((item, index) => {
+                        const timelineItem = document.createElement('div');
+                        timelineItem.className = `timeline-item ${index % 2 === 0 ? 'left' : 'right'}`;
+                        
+                        timelineItem.innerHTML = `
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h3>
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.54 5.82 22l-5-4.87 6.91-3.01L2 8.27l5 4.87L12 2z"/>
+                                    </svg>
+                                    ${item.title}
+                                </h3>
+                                <div class="meta">
+                                    <span class="source">${item.source}</span>
+                                    <span class="time">${item.time}</span>
+                                    <span class="category-tag category-${item.category}">${item.category.replace(/-/g, ' ').toUpperCase()}</span>
+                                </div>
+                                <p>${item.summary}</p>
+                                <div class="timeline-details">
+                                    <p>${item.details}</p>
+                                </div>
+                                <button class="expand-btn">Show Details</button>
+                            </div>
+                        `;
+                        
+                        // Add click event to toggle details
+                        timelineItem.addEventListener('click', (e) => {
+                            // Prevent triggering when clicking the button directly
+                            if (e.target.classList.contains('expand-btn')) return;
+                            
+                            timelineItem.classList.toggle('expanded');
+                            const details = timelineItem.querySelector('.timeline-details');
+                            const btn = timelineItem.querySelector('.expand-btn');
+                            
+                            if (details.classList.contains('expanded')) {
+                                details.classList.remove('expanded');
+                                btn.textContent = 'Show Details';
+                            } else {
+                                details.classList.add('expanded');
+                                btn.textContent = 'Hide Details';
+                            }
+                        });
+                        
+                        timelineEl.appendChild(timelineItem);
+                        
+                        // Animate items in with delay
+                        setTimeout(() => {
+                            timelineItem.classList.add('visible');
+                        }, index * 100);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading timeline data:', error);
+                    loadingEl.textContent = 'Failed to load timeline data. Please try again later.';
+                    loadingEl.style.color = 'var(--accent-red)';
+                });
+        });
+    </script>
+</body>
+</html>

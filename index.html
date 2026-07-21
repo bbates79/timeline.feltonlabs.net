@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Conflict Timeline</title>
+    <style>
+        :root {
+            --bg-dark: #0f0f0f;
+            --bg-darker: #0a0a0a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --accent-blue: #00b4d8;
+            --accent-red: #ff6b6b;
+            --accent-green: #51cf66;
+            --border-color: #333;
+            --card-bg: #1a1a1a;
+            --shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        *[data-theme="light"] {
+            --bg-dark: #f8f9fa;
+            --bg-darker: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #495057;
+            --accent-blue: #0d6efd;
+            --accent-red: #dc3545;
+            --accent-green: #198754;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--accent-blue), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .headline {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow);
+        }
+        
+        .theme-toggle::after {
+            content: '🌙';
+            font-size: 1.5rem;
+        }
+        
+        *[data-theme="light"] .theme-toggle::after {
+            content: '☀️';
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: var(--accent-blue);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .timeline-item.left {
+            left: 0;
+            right: 50%;
+        }
+        
+        .timeline-item.right {
+            left: 50%;
+            right: 0;
+        }
+        
+        .timeline-item.left::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            top: 20px;
+            right: -8px;
+        }
+        
+        .timeline-item.right::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            top: 20px;
+            left: -8px;
+        }
+        
+        .timeline-item:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow);
+            border-color: var(--accent-blue);
+        }
+        
+        .timeline-content {
+            max-width: 100%;
+        }
+        
+        .timeline-content h3 {
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+        
+        .timeline-content .meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .timeline-content .meta .source {
+            font-weight: 500;
+        }
+        
+        .timeline-content .meta .time {
+            opacity: 0.8;
+        }
+        
+        .timeline-content p {
+            color: var(--text-primary);
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .expand-indicator {
+            display: inline-block;
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .expanded .expand-indicator {
+            transform: rotate(180deg);
+        }
+        
+        .timeline-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.4s ease;
+            background: var(--bg-darker);
+            border-radius: 0 0 8px 8px;
+            margin-top: 15px;
+            padding: 0 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .timeline-details.expanded {
+            max-height: 300px;
+            opacity: 1;
+            padding: 15px;
+        }
+        
+        .timeline-details p {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .loading, .error {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+        
+        .error {
+            color: var(--accent-red);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .timeline::after {
+                left: 20px;
+            }
+            
+            .timeline-item.left,
+            .timeline-item.right {
+                left: 0;
+                right: 0;
+                margin-left: 20px;
+            }
+            
+            .timeline-item.left::after,
+            .timeline-item.right::after {
+                left: 10px;
+                right: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" id="themeToggle" title="Toggle dark/light mode"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Global Conflict Timeline</h1>
+            <div class="headline" id="headline">Tracking key global tensions</div>
+        </header>
+        
+        <div class="timeline" id="timeline">
+            <div class="loading" id="loading">Loading timeline data...</div>
+            <div class="error" id="error" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Theme management
+        const themeToggle = document.getElementById('themeToggle');
+        const rootElement = document.documentElement;
+        
+        // Check for saved theme preference or use system preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            rootElement.setAttribute('data-theme', savedTheme);
+        } else {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            rootElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = rootElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            rootElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Timeline data - in a real implementation, this would be fetched from an API or JSON file
+        const timelineData = [
+            {
+                id: 1,
+                date: "July 21, 2026",
+                time: "10:30 AM",
+                title: "US-Iran tensions escalate in Strait of Hormuz",
+                source: "Reuters",
+                summary: "Recent military exchanges have increased tensions in the critical shipping lane",
+                details: "The Strait of Hormuz has seen increased military activity as US and Iranian forces exchange strikes. Tanker traffic has slowed to two-month lows amid safety concerns. Both nations claim defensive actions while accusing the other of escalation.",
+                category: "middle-east"
+            },
+            {
+                id: 2,
+                date: "July 20, 2026",
+                time: "8:15 PM",
+                title: "Russia launches major missile strike on Kyiv",
+                source: "BBC News",
+                summary: "One of the largest ballistic missile attacks since the war began",
+                details: "Russian forces launched a significant ballistic missile barrage targeting Kyiv and other Ukrainian cities. Ukrainian air defenses intercepted many missiles, but several hit residential areas causing casualties and infrastructure damage.",
+                category: "europe"
+            },
+            {
+                id: 3,
+                date: "July 20, 2026",
+                time: "3:45 PM",
+                title: "Ukraine reports success against Russian Black Sea fleet",
+                source: "Kyiv Independent",
+                summary: "Ukrainian drones strike 12 Russian vessels in Black Sea operations",
+                details: "Ukraine's military announced successful drone strikes against 12 Russian vessels including cargo ships, tankers, and military support ships in the Black Sea. The operation demonstrates Ukraine's growing asymmetric naval capabilities.",
+                category: "europe"
+            },
+            {
+                id: 4,
+                date: "July 19, 2026",
+                time: "11:20 AM",
+                title: "China increases military activity near Taiwan",
+                source: "Al Jazeera",
+                summary: "People's Liberation Army conducts drills near Taiwan Strait",
+                details: "Chinese military aircraft and vessels have increased operations near Taiwan, conducting what Beijing calls 'routine training' but Taipei views as intimidation. Taiwan has responded with increased readiness and international appeals for support.",
+                category: "asia-pacific"
+            }
+        ];
+        
+        // DOM elements
+        const timeline = document.getElementById('timeline');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const headline = document.getElementById('headline');
+        
+        // Update headline with current date
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        headline.textContent = `GlobalConflict Timeline - ${new Date().toLocaleDateString(undefined, options)}`;
+        
+        // Simulate loading delay
+        setTimeout(() => {
+            loading.style.display = 'none';
+            
+            if (timelineData.length === 0) {
+                error.textContent = 'No timeline data available';
+                error.style.display = 'block';
+                return;
+            }
+            
+            // Render timeline items
+            timelineData.forEach((item, index) => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = `timeline-item ${index % 2 === 0 ? 'left' : 'right'}`;
+                timelineItem.innerHTML = `
+                    <div class="timeline-content">
+                        <h3>${item.title}</h3>
+                        <div class="meta">
+                            <span class="source">${item.source}</span>
+                            <span class="time">${item.time}</span>
+                        </div>
+                        <p>${item.summary}</p>
+                        <div class="timeline-details">
+                            <p>${item.details}</p>
+                        </div>
+                    </div>
+                `;
+                
+                timelineItem.addEventListener('click', () => {
+                    timelineItem.classList.toggle('expanded');
+                    const details = timelineItem.querySelector('.timeline-details');
+                    details.classList.toggle('expanded');
+                });
+                
+                timeline.appendChild(timelineItem);
+                
+                // Animate items in with delay
+                setTimeout(() => {
+                    timelineItem.classList.add('visible');
+                }, index * 100);
+            });
+        }, 800);
+    </script>
+</body>
+</html>
