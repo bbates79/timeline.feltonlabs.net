@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 # Configuration
-REPO_DIR = Path.home() / "timeline.feltonlabs.net"
+REPO_DIR = Path.cwd()
 DATA_FILE = REPO_DIR / "data.json"
 SIGNAL_ENDPOINT = "https://signal.feltonlabs.net/digest"
 
