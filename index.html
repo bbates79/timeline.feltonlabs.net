@@ -1,419 +1,208 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Conflict Timeline</title>
-    <style>
-        :root {
-            --bg-dark: #0f0f0f;
-            --bg-darker: #0a0a0a;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --accent-blue: #00b4d8;
-            --accent-red: #ff6b6b;
-            --accent-green: #51cf66;
-            --border-color: #333;
-            --card-bg: #1a1a1a;
-            --shadow: 0 2px 8px rgba(0,0,0,0.3);
-            --transition: all 0.3s ease;
-        }
-        
-        *[data-theme="light"] {
-            --bg-dark: #f8f9fa;
-            --bg-darker: #ffffff;
-            --text-primary: #212529;
-            --text-secondary: #495057;
-            --accent-blue: #0d6efd;
-            --accent-red: #dc3545;
-            --accent-green: #198754;
-            --border-color: #dee2e6;
-            --card-bg: #ffffff;
-            --shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, var(--accent-blue), var(--accent-green));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .headline {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-        
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 1000;
-            transition: var(--transition);
-        }
-        
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow);
-        }
-        
-        .theme-toggle svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--text-primary);
-        }
-        
-        #loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-        
-        #timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        
-        .timeline-item {
-            display: flex;
-            margin: 20px 0;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        
-        .timeline-item.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .timeline-item.left {
-            flex-direction: row-reverse;
-        }
-        
-        .timeline-item.right {
-            flex-direction: row;
-        }
-        
-        .timeline-dot {
-            width: 16px;
-            height: 16px;
-            background-color: var(--accent-blue);
-            border-radius: 50%;
-            margin: 0 12px;
-            flex-shrink: 0;
-            box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.2);
-            position: relative;
-        }
-        
-        .timeline-dot::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 8px;
-            height: 8px;
-            background-color: var(--bg-darker);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .timeline-content {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 20px;
-            max-width: 60%;
-            box-shadow: var(--shadow);
-            position: relative;
-        }
-        
-        .timeline-item.left .timeline-content {
-            margin-right: auto;
-        }
-        
-        .timeline-item.right .timeline-content {
-            margin-left: auto;
-        }
-        
-        .timeline-content h3 {
-            color: var(--accent-blue);
-            margin-bottom: 8px;
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .timeline-content h3 svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-        
-        .meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 12px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        
-        .meta .source {
-            font-weight: 600;
-        }
-        
-        .timeline-content p {
-            margin-bottom: 16px;
-            line-height: 1.7;
-        }
-        
-        .timeline-details {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            background-color: rgba(0,0,0,0.1);
-            border-radius: 4px;
-            padding: 0 16px;
-        }
-        
-        .timeline-details.expanded {
-            max-height: 200px;
-            padding: 16px;
-        }
-        
-        .timeline-details p {
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-        
-        .expand-btn {
-            background: none;
-            border: none;
-            color: var(--accent-blue);
-            cursor: pointer;
-            font-size: 0.9rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s ease;
-        }
-        
-        .expand-btn:hover {
-            background-color: rgba(0, 180, 216, 0.1);
-        }
-        
-        .category-tag {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .category-middle-east { background-color: rgba(255, 107, 107, 0.2); color: var(--accent-red); }
-        .category-europe { background-color: rgba(81, 207, 102, 0.2); color: var(--accent-green); }
-        .category-asia-pacific { background-color: rgba(0, 180, 216, 0.2); color: var(--accent-blue); }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .timeline-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .timeline-item.left {
-                align-items: flex-start;
-            }
-            
-            .timeline-item.right {
-                align-items: flex-start;
-            }
-            
-            .timeline-dot {
-                margin: 0 0 12px 0;
-            }
-            
-            .timeline-content {
-                max-width: 100%;
-            }
-            
-            .timeline-item.left .timeline-content {
-                margin-right: 0;
-            }
-            
-            .timeline-item.right .timeline-content {
-                margin-left: 0;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A live, source-linked timeline of the world's most consequential conflicts.">
+  <title>Conflict Signal — Global Conflict Timeline</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0e12;
+      --surface: #11161c;
+      --surface-2: #171e26;
+      --surface-3: #202a34;
+      --ink: #eef4f7;
+      --muted: #8e9aa5;
+      --faint: #62707c;
+      --line: #29343e;
+      --accent: #65d6c2;
+      --accent-strong: #9ce9db;
+      --hot: #ff837c;
+      --gold: #f4c96a;
+      --shadow: 0 16px 45px rgba(0, 0, 0, .24);
+      --radius: 14px;
+    }
+    [data-theme="light"] {
+      color-scheme: light;
+      --bg: #f3f6f5;
+      --surface: #ffffff;
+      --surface-2: #f7faf9;
+      --surface-3: #eaf1ef;
+      --ink: #15201f;
+      --muted: #5d6d6a;
+      --faint: #7f908c;
+      --line: #dbe5e1;
+      --accent: #087f70;
+      --accent-strong: #075d53;
+      --hot: #b9433d;
+      --gold: #9b6a00;
+      --shadow: 0 16px 45px rgba(27, 58, 51, .11);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: .01em;
+    }
+    a { color: inherit; }
+    button, input { font: inherit; }
+    .shell { max-width: 1180px; margin: 0 auto; padding: 0 28px 80px; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+      min-height: 72px; border-bottom: 1px solid var(--line);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 760; letter-spacing: -.03em; }
+    .mark { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid var(--accent); border-radius: 8px; color: var(--accent); font: 700 12px/1 ui-monospace, monospace; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .quiet { color: var(--muted); font-size: 12px; }
+    .icon-btn, .filter-btn, .search {
+      border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 9px;
+    }
+    .icon-btn { width: 40px; height: 40px; cursor: pointer; display: grid; place-items: center; }
+    .icon-btn:hover, .filter-btn:hover { border-color: var(--accent); color: var(--accent-strong); }
+    .hero { padding: 72px 0 46px; max-width: 760px; }
+    .eyebrow { color: var(--accent); font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; text-transform: uppercase; }
+    h1 { margin: 14px 0 14px; max-width: 760px; font-size: clamp(40px, 6vw, 74px); line-height: .98; letter-spacing: -.065em; font-weight: 780; }
+    .dek { margin: 0; max-width: 630px; color: var(--muted); font-size: 18px; line-height: 1.5; }
+    .command-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 16px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .filters { display: flex; flex-wrap: wrap; gap: 7px; flex: 1; }
+    .filter-btn { padding: 8px 12px; cursor: pointer; color: var(--muted); font-size: 12px; transition: .2s ease; }
+    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #081311; font-weight: 750; }
+    .search { min-width: 210px; padding: 9px 12px; outline: none; color: var(--ink); }
+    .search::placeholder { color: var(--faint); }
+    .search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+    .status-row { display: flex; justify-content: space-between; gap: 12px; padding: 16px 0 26px; color: var(--muted); font-size: 12px; }
+    .status-row strong { color: var(--ink); font-weight: 650; }
+    .timeline { position: relative; margin-left: 10px; }
+    .timeline::before { content: ""; position: absolute; left: 9px; top: 10px; bottom: 10px; width: 1px; background: var(--line); }
+    .day { position: relative; margin: 0 0 38px; }
+    .day-label { display: flex; align-items: center; gap: 13px; margin: 0 0 16px -1px; color: var(--muted); font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
+    .day-label::before { content: ""; width: 21px; height: 21px; border: 1px solid var(--accent); background: var(--bg); border-radius: 50%; box-shadow: 0 0 0 5px var(--bg); }
+    .entry { position: relative; display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 24px; margin: 0 0 14px; }
+    .entry-time { padding-top: 18px; color: var(--faint); font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; text-align: right; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
+    .card:hover, .card:focus-within { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .card-main { padding: 20px 22px 18px; }
+    .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 11px; color: var(--muted); font-size: 12px; }
+    .source { color: var(--accent-strong); font-weight: 700; }
+    .dot { color: var(--faint); }
+    .tag { padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font: 10px/1.2 ui-monospace, monospace; letter-spacing: .05em; text-transform: uppercase; }
+    h2 { margin: 0; font-size: clamp(20px, 2.3vw, 28px); line-height: 1.12; letter-spacing: -.035em; font-weight: 720; }
+    h2 a { text-decoration: none; }
+    h2 a:hover { color: var(--accent-strong); }
+    .summary { margin: 11px 0 0; color: var(--muted); max-width: 800px; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 22px; border-top: 1px solid var(--line); background: var(--surface-2); }
+    .details { margin: 0; color: var(--muted); font-size: 13px; }
+    .read-link { color: var(--accent); font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .read-link:hover { text-decoration: underline; }
+    .empty, .loading { padding: 40px 20px; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); text-align: center; }
+    footer { padding-top: 50px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 700px) {
+      .shell { padding: 0 16px 55px; }
+      .topbar { min-height: 62px; }
+      .quiet { display: none; }
+      .hero { padding: 50px 0 35px; }
+      .command-row { align-items: stretch; }
+      .filters { order: 2; }
+      .search { flex: 1; min-width: 160px; }
+      .status-row { display: block; }
+      .status-row span { display: block; margin-bottom: 5px; }
+      .entry { grid-template-columns: 1fr; gap: 3px; margin-left: 0; }
+      .entry-time { padding: 0 0 0 34px; text-align: left; }
+      .card { margin-left: 34px; }
+      .timeline::before { left: 9px; }
+      .day-label { margin-bottom: 13px; }
+      .card-main { padding: 17px; }
+      .card-footer { padding: 10px 17px; }
+      footer { display: block; }
+      footer span { display: block; margin-bottom: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Global Conflict Timeline</h1>
-            <div class="headline" id="headline">Loading latest updates...</div>
-        </header>
-        
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M12 4.5a1 1 0 011 1V9a1 1 0 01-2 0V5.5a1 1 0 011-1zm5 6.5a1 1 0 01-1 1h-3a1 1 0 010-2h3a1 1 0 011 1zm-4.5 9a1 1 0 011 1v3a1 1 0 01-2 0v-3a1 1 0 011-1zm6.5-4a1 1 0 01-1 1H9a1 1 0 010-2h3.5a1 1 0 011 1zm2-9.5a1 1 0 01-1 1V3a1 1 0 012 0v1.5a1 1 0 01-1 1zm-9 6a1 1 0 01-1 1H4a1 1 0 010-2h3a1 1 0 011 1zm9.5-6a1 1 0 01-1 1v-3a1 1 0 012 0v3a1 1 0 01-1 1zm1 4.5a1 1 0 01-1 1H9a1 1 0 010-2h3.5a1 1 0 011 1zM12 15a3 3 0 100 6 3 3 0 000-6z"/>
-            </svg>
-        </button>
-        
-        <div id="loading">Loading timeline data...</div>
-        <div id="timeline"></div>
-    </div>
+  <main class="shell">
+    <nav class="topbar" aria-label="Primary">
+      <a class="brand" href="./" aria-label="Conflict Signal home"><span class="mark">CS</span><span>Conflict Signal</span></a>
+      <div class="top-actions"><span class="quiet" id="source-status">Live source: Signal</span><button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch to light mode" title="Toggle theme">☼</button></div>
+    </nav>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('themeToggle');
-            const htmlElement = document.documentElement;
-            const loadingEl = document.getElementById('loading');
-            const timelineEl = document.getElementById('timeline');
-            const headlineEl = document.getElementById('headline');
-            
-            // Check for saved theme preference or use system preference
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                htmlElement.setAttribute('data-theme', savedTheme);
-            } else {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                htmlElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-            }
-            
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = htmlElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                htmlElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-            });
-            
-            // Fetch timeline data
-            fetch('data.json')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Update headline
-                    headlineEl.textContent = data.headline || 'Global Conflict Timeline';
-                    
-                    // Hide loading indicator
-                    loadingEl.style.display = 'none';
-                    
-                    // Sort items by date (newest first)
-                    const sortedItems = [...data.items].sort((a, b) => {
-                        return new Date(b.date) - new Date(a.date);
-                    });
-                    
-                    // Create timeline items
-                    sortedItems.forEach((item, index) => {
-                        const timelineItem = document.createElement('div');
-                        timelineItem.className = `timeline-item ${index % 2 === 0 ? 'left' : 'right'}`;
-                        
-                        timelineItem.innerHTML = `
-                            <div class="timeline-dot"></div>
-                            <div class="timeline-content">
-                                <h3>
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.54 5.82 22l-5-4.87 6.91-3.01L2 8.27l5 4.87L12 2z"/>
-                                    </svg>
-                                    ${item.title}
-                                </h3>
-                                <div class="meta">
-                                    <span class="source">${item.source}</span>
-                                    <span class="time">${item.time}</span>
-                                    <span class="category-tag category-${item.category}">${item.category.replace(/-/g, ' ').toUpperCase()}</span>
-                                </div>
-                                <p>${item.summary}</p>
-                                <div class="timeline-details">
-                                    <p>${item.details}</p>
-                                </div>
-                                <button class="expand-btn">Show Details</button>
-                            </div>
-                        `;
-                        
-                        timelineItem.addEventListener('click', (e) => {
-                            if (e.target.classList.contains('expand-btn')) return;
-                            
-                            timelineItem.classList.toggle('expanded');
-                            const details = timelineItem.querySelector('.timeline-details');
-                            const btn = timelineItem.querySelector('.expand-btn');
-                            
-                            if (details.classList.contains('expanded')) {
-                                details.classList.remove('expanded');
-                                btn.textContent = 'Show Details';
-                            } else {
-                                details.classList.add('expanded');
-                                btn.textContent = 'Hide Details';
-                            }
-                        });
-                        
-                        timelineEl.appendChild(timelineItem);
-                        
-                        setTimeout(() => {
-                            timelineItem.classList.add('visible');
-                        }, index * 100);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading timeline data:', error);
-                    loadingEl.textContent = 'Failed to load timeline data. Please try again later.';
-                    loadingEl.style.color = 'var(--accent-red)';
-                });
+    <header class="hero">
+      <div class="eyebrow">Global conflict desk / daily brief</div>
+      <h1>The world is not one story.</h1>
+      <p class="dek">A source-linked timeline of the conflicts, flashpoints, and strategic pressure shaping the day.</p>
+    </header>
+
+    <section class="command-row" aria-label="Timeline controls">
+      <div class="filters" id="filters" role="group" aria-label="Filter by region"></div>
+      <input class="search" id="search" type="search" placeholder="Search headlines…" aria-label="Search headlines">
+    </section>
+    <div class="status-row"><span id="count-status">Loading updates…</span><span id="updated-status"></span></div>
+
+    <section id="timeline" class="timeline" aria-live="polite"><div class="loading">Loading timeline data…</div></section>
+
+    <footer><span>Curated from <a href="https://signal.feltonlabs.net" target="_blank" rel="noopener">Signal News</a>; summaries are provided for orientation.</span><span><a href="https://github.com/bbates79/timeline.feltonlabs.net" target="_blank" rel="noopener">View source ↗</a></span></footer>
+  </main>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const timeline = document.getElementById('timeline');
+      const filters = document.getElementById('filters');
+      const search = document.getElementById('search');
+      const countStatus = document.getElementById('count-status');
+      const updatedStatus = document.getElementById('updated-status');
+      const themeToggle = document.getElementById('theme-toggle');
+      const state = { items: [], category: 'all', query: '' };
+
+      const esc = (value = '') => String(value).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+      const categoryLabel = c => String(c || 'conflict').replace(/-/g, ' ');
+      const dateKey = item => item.published || item.date || '';
+      const formatDate = value => { const d = new Date(value); return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }); };
+      const formatTime = item => item.time || (item.published ? new Date(item.published).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : '');
+
+      function setTheme(theme) {
+        root.dataset.theme = theme;
+        localStorage.setItem('conflict-theme', theme);
+        themeToggle.textContent = theme === 'dark' ? '☼' : '☾';
+        themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      }
+      setTheme(localStorage.getItem('conflict-theme') || 'dark');
+      themeToggle.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+      function renderFilters() {
+        const cats = [...new Set(state.items.map(item => item.category).filter(Boolean))].sort();
+        filters.innerHTML = ['all', ...cats].map(cat => `<button class="filter-btn ${state.category === cat ? 'active' : ''}" data-category="${esc(cat)}" type="button">${esc(cat === 'all' ? 'All updates' : categoryLabel(cat))}</button>`).join('');
+        filters.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { state.category = button.dataset.category; renderFilters(); render(); }));
+      }
+
+      function render() {
+        const query = state.query.trim().toLowerCase();
+        const visible = state.items.filter(item => {
+          const matchesCategory = state.category === 'all' || item.category === state.category;
+          const haystack = `${item.title} ${item.summary} ${item.source} ${item.category}`.toLowerCase();
+          return matchesCategory && (!query || haystack.includes(query));
         });
-    </script>
+        countStatus.innerHTML = `<strong>${visible.length}</strong> update${visible.length === 1 ? '' : 's'} shown <span class="dot">·</span> <strong>${state.items.length}</strong> total`;
+        if (!visible.length) { timeline.innerHTML = '<div class="empty">No updates match this filter.</div>'; return; }
+        const groups = new Map();
+        [...visible].sort((a, b) => dateKey(b).localeCompare(dateKey(a))).forEach(item => { const key = item.date || (item.published || '').slice(0, 10) || 'Recent'; if (!groups.has(key)) groups.set(key, []); groups.get(key).push(item); });
+        timeline.innerHTML = [...groups.entries()].map(([date, items]) => `<section class="day"><h2 class="day-label">${esc(formatDate(date))}</h2>${items.map((item, index) => `<article class="entry"><time class="entry-time">${esc(formatTime(item))}</time><div class="card"><div class="card-main"><div class="meta"><span class="source">${esc(item.source || 'Signal')}</span><span class="dot">·</span><span>${esc(item.category ? categoryLabel(item.category) : 'conflict')}</span><span class="tag">${index === 0 ? 'Latest' : 'Update'}</span></div><h2><a href="${esc(item.link || '#')}" target="_blank" rel="noopener">${esc(item.title || 'Untitled update')} ↗</a></h2><p class="summary">${esc(item.summary || 'No summary supplied by the source.')}</p></div><div class="card-footer"><span class="details">Source-linked reporting</span>${item.link ? `<a class="read-link" href="${esc(item.link)}" target="_blank" rel="noopener">Read original ↗</a>` : ''}</div></div></article>`).join('')}</section>`).join('');
+      }
+
+      search.addEventListener('input', event => { state.query = event.target.value; render(); });
+      fetch('data.json', {cache: 'no-store'}).then(response => { if (!response.ok) throw new Error('Data request failed'); return response.json(); }).then(data => {
+        state.items = Array.isArray(data.items) ? data.items : [];
+        updatedStatus.textContent = data.last_updated ? `Last updated ${new Date(data.last_updated).toLocaleString()}` : '';
+        renderFilters(); render();
+      }).catch(error => { console.error(error); countStatus.textContent = 'Unable to load updates'; timeline.innerHTML = '<div class="empty">The timeline is temporarily unavailable. Please try again shortly.</div>'; });
+    })();
+  </script>
 </body>
 </html>
