@@ -26,6 +26,9 @@ LIMIT = 10
 GITHUB_USER = "bbates79"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
+if not GITHUB_TOKEN:
+    raise RuntimeError("GITHUB_TOKEN environment variable is required")
+
 
 def fetch_category(category: str, limit: int = 10) -> dict:
     """Fetch articles from Signal for a specific category."""

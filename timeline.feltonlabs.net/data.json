@@ -41,6 +41,16 @@
       "summary": "People's Liberation Army conducts drills near Taiwan Strait",
       "details": "Chinese military aircraft and vessels have increased operations near Taiwan, conducting what Beijing calls 'routine training' but Taipei views as intimidation. Taiwan has responded with increased readiness and international appeals for support.",
       "category": "asia-pacific"
+    },
+    {
+      "id": 5,
+      "date": "July 18, 2026",
+      "time": "9:00 AM",
+      "title": "Strait of Hormuz tanker traffic at two-month low",
+      "source": "Reuters",
+      "summary": "Shipping data shows reduced tanker transits amid US-Iran tensions",
+      "details": "The number of tankers transiting the Strait of Hormuz fell to the lowest level in two months as renewed US and Iranian strikes raise safety concerns. Shipping companies report increased insurance costs and rerouting around the Arabian Peninsula.",
+      "category": "middle-east"
     }
   ]
 }
