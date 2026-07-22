@@ -1,7 +1,19 @@
 {
-  "last_updated": "2026-07-22T22:28:44.005770+00:00",
+  "last_updated": "2026-07-22T22:44:23.952973+00:00",
   "headline": "Global Conflict Timeline - July 22, 2026",
   "items": [
+    {
+      "id": 39,
+      "date": "2026-07-22",
+      "time": "18:44",
+      "title": "Trump Approves Nuclear Deal With Saudi Arabia",
+      "source": "Foreign Policy",
+      "summary": "But without \u201cgold standard\u201d constraints, the pact could allow Riyadh to eventually develop a warhead.",
+      "details": "But without \u201cgold standard\u201d constraints, the pact could allow Riyadh to eventually develop a warhead.",
+      "category": "conflict",
+      "link": "https://foreignpolicy.com/2026/07/22/trump-nuclear-deal-saudi-arabia-uranium-enrichment-gold-standard/",
+      "published": "2026-07-22T21:25:30.000Z"
+    },
     {
       "id": 50,
       "date": "2026-07-20",
@@ -349,18 +361,6 @@
       "category": "conflict",
       "link": "https://warontherocks.com/total-war-on-taipei-china-explores-elevating-cognitive-effects-into-its-vision-of-warfare/",
       "published": "2026-07-22T07:30:49.000Z"
-    },
-    {
-      "id": 45,
-      "date": "2026-07-22",
-      "time": "09:18",
-      "title": "Elistair and Exail bring persistent aerial surveillance to USVs",
-      "source": "Naval News",
-      "summary": "Elistair and Exail have partnered to integrate the Khronos automated tethered DroneBox on Exail\u2019s DriX unmanned surface vessel (USV), giving maritime operators a persistent \u201ceye in the sky\u201d launched directly from the vessel. Elistair press release The combination extends surveill",
-      "details": "Elistair and Exail have partnered to integrate the Khronos automated tethered DroneBox on Exail\u2019s DriX unmanned surface vessel (USV), giving maritime operators a persistent \u201ceye in the sky\u201d launched directly from the vessel. Elistair press release The combination extends surveill",
-      "category": "conflict",
-      "link": "https://www.navalnews.com/naval-news/2026/07/elistair-and-exail-bring-persistent-aerial-surveillance-to-usvs/",
-      "published": "2026-07-22T07:36:50.000Z"
     }
   ],
   "categories": [
