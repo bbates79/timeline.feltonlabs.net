@@ -1,7 +1,19 @@
 {
-  "last_updated": "2026-07-22T22:25:06.484595+00:00",
+  "last_updated": "2026-07-22T22:25:40.742124+00:00",
   "headline": "Global Conflict Timeline - July 22, 2026",
   "items": [
+    {
+      "id": 50,
+      "date": "2026-07-20",
+      "time": "18:25",
+      "title": "Toward a Navy Fatigue Management Program",
+      "source": "CIMSEC",
+      "summary": "By Dr. John P. Cordle, Captain, USN (Ret). The first week of June 2026 marked a seminal event in the history of sleep and fatigue in the military. The Department of War (DOW) Fatigue Related Management Working Group hosted the first ever Sleep and Fatigue Summit with over 130 exp",
+      "details": "By Dr. John P. Cordle, Captain, USN (Ret). The first week of June 2026 marked a seminal event in the history of sleep and fatigue in the military. The Department of War (DOW) Fatigue Related Management Working Group hosted the first ever Sleep and Fatigue Summit with over 130 exp",
+      "category": "world",
+      "link": "https://cimsec.org/toward-a-navy-fatigue-management-program/?utm_source=rss&#038;utm_medium=rss&#038;utm_campaign=toward-a-navy-fatigue-management-program",
+      "published": "2026-07-20T10:00:20.000Z"
+    },
     {
       "id": 65,
       "date": "2026-07-22",
@@ -349,18 +361,6 @@
       "category": "conflict",
       "link": "https://www.navalnews.com/naval-news/2026/07/elistair-and-exail-bring-persistent-aerial-surveillance-to-usvs/",
       "published": "2026-07-22T07:36:50.000Z"
-    },
-    {
-      "id": 43,
-      "date": "2026-07-22",
-      "time": "09:18",
-      "title": "Russia\u2019s answer to Amazon has a new problem, and it is not delivery times\u2014two more warehouses ablaze",
-      "source": "Euromaidan Press",
-      "summary": "Fires broke out at the company's Krasnodar and Nevinnomyssk hubs overnight, days after two more of its warehouses burned near Moscow.",
-      "details": "Fires broke out at the company's Krasnodar and Nevinnomyssk hubs overnight, days after two more of its warehouses burned near Moscow.",
-      "category": "conflict",
-      "link": "https://euromaidanpress.com/2026/07/22/russias-answer-to-amazon-has-a-new-problem-and-it-is-not-delivery-times-two-more-warehouses-ablaze/",
-      "published": "2026-07-22T08:29:03.000Z"
     }
   ],
   "categories": [
