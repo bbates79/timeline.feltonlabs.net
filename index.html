@@ -98,9 +98,22 @@
     .summary { margin: 11px 0 0; color: var(--muted); max-width: 800px; }
     .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 22px; border-top: 1px solid var(--line); background: var(--surface-2); }
     .details { margin: 0; color: var(--muted); font-size: 13px; }
+    .card-meta { display: flex; flex-wrap: wrap;align-items: center; gap: 8px; margin: 8px 0 0; color: var(--muted); font-size: 12px; }
     .read-link { color: var(--accent); font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; }
     .read-link:hover { text-decoration: underline; }
     .empty, .loading { padding: 40px 20px; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--radius); text-align: center; }
+    .day.collapsed .entry { display: none; }
+    .day.collapsed .day-label::before { background: var(--accent); }
+    .day-header { cursor: pointer; user-select: none; }
+    .day-header:hover .day-label { color: var(--accent-strong); }
+    .card-header { display: flex; align-items: center; gap: 10px; }
+    .card-wrap .card-peek { display: none; padding: 10px 14px; color: var(--muted); font-size: 13px; }
+    .card-wrap:not([aria-expanded="true"]) .card-main,
+    .card-wrap:not([aria-expanded="true"]) .card-footer { display: none; }
+    .card-wrap:not([aria-expanded="true"]) .card-peek { display: block; }
+    .card-toggle { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: none; color: var(--muted); font: inherit; cursor: pointer; padding: 6px 2px 0 0; }
+    .card-toggle::before { content: '▸'; display: inline-block; transition: transform .15s ease; font-size: 11px; color: var(--accent-strong); }
+    .card-wrap[aria-expanded="true"] .card-toggle::before { transform: rotate(90deg); }
     footer { padding-top: 50px; color: var(--faint); font-size: 12px; display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); }
     footer a { color: var(--accent); text-decoration: none; }
     @media (max-width: 700px) {
@@ -143,7 +156,7 @@
       <div class="filters" id="filters" role="group" aria-label="Filter by region"></div>
       <input class="search" id="search" type="search" placeholder="Search headlines…" aria-label="Search headlines">
     </section>
-    <div class="status-row"><span id="count-status">Loading updates…</span><span id="updated-status"></span></div>
+    <div class="status-row"><span id="count-status">Loading updates…</span><span id="updated-status"></span><button class="quiet" id="toggle-all" type="button">Collapse all</button></div>
 
     <section id="timeline" class="timeline" aria-live="polite"><div class="loading">Loading timeline data…</div></section>
 
@@ -193,8 +206,37 @@
         if (!visible.length) { timeline.innerHTML = '<div class="empty">No updates match this filter.</div>'; return; }
         const groups = new Map();
         [...visible].sort((a, b) => dateKey(b).localeCompare(dateKey(a))).forEach(item => { const key = item.date || (item.published || '').slice(0, 10) || 'Recent'; if (!groups.has(key)) groups.set(key, []); groups.get(key).push(item); });
-        timeline.innerHTML = [...groups.entries()].map(([date, items]) => `<section class="day"><h2 class="day-label">${esc(formatDate(date))}</h2>${items.map((item, index) => `<article class="entry"><time class="entry-time">${esc(formatTime(item))}</time><div class="card"><div class="card-main"><div class="meta"><span class="source">${esc(item.source || 'Signal')}</span><span class="dot">·</span><span>${esc(item.category ? categoryLabel(item.category) : 'conflict')}</span><span class="tag">${index === 0 ? 'Latest' : 'Update'}</span></div><h2><a href="${esc(item.link || '#')}" target="_blank" rel="noopener">${esc(item.title || 'Untitled update')} ↗</a></h2><p class="summary">${esc(item.summary || 'No summary supplied by the source.')}</p></div><div class="card-footer"><span class="details">Source-linked reporting</span>${item.link ? `<a class="read-link" href="${esc(item.link)}" target="_blank" rel="noopener">Read original ↗</a>` : ''}</div></div></article>`).join('')}</section>`).join('');
+        timeline.innerHTML = [...groups.entries()].map(([date, items], gIdx) => {
+          let itemsHtml = '';
+          items.forEach((item, idx) => {
+            const peek = esc(item.summary ? item.summary.slice(0, 140) + '…' : 'No summary supplied by the source.');
+            const title = esc(item.title || 'Untitled update');
+            const source = esc(item.source || 'Signal');
+            const category = esc(item.category ? categoryLabel(item.category) : 'conflict');
+            const time = esc(formatTime(item));
+            const link = esc(item.link || '#');
+            itemsHtml += `<article class="entry"><time class="entry-time">${time}</time><div class="card-wrap" aria-expanded="false"><div class="card"><div class="card-header"><button class="card-toggle" type="button" aria-label="Expand story"></button><h2><a href="${link}" target="_blank" rel="noopener">${title}</a></h2>${item.link ? `<a class="read-link" href="${link}" target="_blank" rel="noopener">Read original ↗</a>` : ''}</div><div class="card-meta"><span class="source">${source}</span><span class="dot">·</span><span>${category}</span></div><div class="card-peek">${peek}</div><div class="card-body"><p class="summary">${esc(item.summary || 'No summary supplied by the source.')}</p></div><div class="card-footer"><span class="details">Source-linked reporting</span></div></div></div></article>`;
+          });
+          return `<section class="day" data-date="${esc(date)}"><header class="day-header" type="button"><h2 class="day-label">${esc(formatDate(date))}${items.length ? `<span class="quiet"> — ${items.length} update${items.length === 1 ? '' : 's'}</span></h2>` : '</h2>'}</header>${itemsHtml}</section>`;
+        }).join('');
+        applyDayCollapse();
+        applyCardExpand();
+        updateToggleAll();
       }
+
+      const dayCollapseKey = (date) => `conflict/day-collapse/${date}`;
+      const cardExpandKey = (id) => `conflict/card-expand/${id}`;
+      const toggleAllBtn = document.getElementById('toggle-all');
+
+      function applyDayCollapse(){ timeline.querySelectorAll('.day').forEach(d => { if (localStorage.getItem(dayCollapseKey(d.dataset.date)) === '1') d.classList.add('collapsed'); }); }
+      function applyCardExpand(){ timeline.querySelectorAll('.card-wrap').forEach(c => { const saved = localStorage.getItem(cardExpandKey(c.querySelector('a')?.href || '')); if (saved === '1') c.setAttribute('aria-expanded', 'true'); }); }
+      function updateToggleAll(){ toggleAllBtn && (toggleAllBtn.textContent = timeline.querySelector('.day.collapsed') ? 'Expand all' : 'Collapse all'); }
+
+      function handleDayHeader(header){ const day = header.closest('.day'); if (!day) return; day.classList.toggle('collapsed'); const collapsed = day.classList.contains('collapsed'); localStorage.setItem(dayCollapseKey(day.dataset.date), collapsed ? '1' : '0'); updateToggleAll(); }
+      function handleCardToggle(trigger){ const wrap = trigger.closest('.card-wrap'); if (!wrap) return; const expanded = wrap.getAttribute('aria-expanded') === 'true'; const next = expanded ? 'false' : 'true'; wrap.setAttribute('aria-expanded', next); localStorage.setItem(cardExpandKey(wrap.querySelector('a')?.href || ''), next === 'true' ? '1' : '0'); }
+
+      timeline.addEventListener('click', (event) => { const dayHeader = event.target.closest('.day-header'); if (dayHeader) { handleDayHeader(dayHeader); return; } const cardToggle = event.target.closest('.card-toggle'); if (cardToggle) { handleCardToggle(cardToggle); return; } });
+      if (toggleAllBtn) { toggleAllBtn.addEventListener('click', () => { const days = timeline.querySelectorAll('.day'); const next = timeline.querySelector('.day.collapsed') ? '0' : '1'; days.forEach(d => { localStorage.setItem(dayCollapseKey(d.dataset.date), next === '1' ? '1' : '0'); if (next === '1') d.classList.add('collapsed'); else d.classList.remove('collapsed'); }); updateToggleAll(); }); }
 
       search.addEventListener('input', event => { state.query = event.target.value; render(); });
       fetch('data.json', {cache: 'no-store'}).then(response => { if (!response.ok) throw new Error('Data request failed'); return response.json(); }).then(data => {
