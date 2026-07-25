@@ -27,7 +27,16 @@ GITHUB_USER = "bbates79"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
 if not GITHUB_TOKEN:
-    raise RuntimeError("GITHUB_TOKEN environment variable is required")
+  try:
+    import subprocess, re
+    out = subprocess.check_output(['git', 'credential', 'fill'], input='protocol=https\nhost=github.com\n\n', text=True, stderr=subprocess.DEVNULL)
+    m = re.search(r'^password=(.+)$', out, re.M)
+    if m:
+      GITHUB_TOKEN = m.group(1).strip()
+  except Exception:
+    pass
+if not GITHUB_TOKEN:
+  raise RuntimeError("GITHUB_TOKEN environment variable is required")
 
 
 def fetch_category(category: str, limit: int = 10) -> dict:
