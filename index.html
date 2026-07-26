@@ -148,7 +148,7 @@
 
     <header class="hero">
       <div class="eyebrow">Global conflict desk / daily brief</div>
-      <h1>The world is not one story.</h1>
+      <h1>Tracking the world at war.</h1>
       <p class="dek">A source-linked timeline of the conflicts, flashpoints, and strategic pressure shaping the day.</p>
     </header>
 
@@ -195,7 +195,7 @@
         filters.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { state.category = button.dataset.category; renderFilters(); render(); }));
       }
 
-      function render() {
+            function render() {
         const query = state.query.trim().toLowerCase();
         const visible = state.items.filter(item => {
           const matchesCategory = state.category === 'all' || item.category === state.category;
@@ -205,7 +205,12 @@
         countStatus.innerHTML = `<strong>${visible.length}</strong> update${visible.length === 1 ? '' : 's'} shown <span class="dot">·</span> <strong>${state.items.length}</strong> total`;
         if (!visible.length) { timeline.innerHTML = '<div class="empty">No updates match this filter.</div>'; return; }
         const groups = new Map();
-        [...visible].sort((a, b) => dateKey(b).localeCompare(dateKey(a))).forEach(item => { const key = item.date || (item.published || '').slice(0, 10) || 'Recent'; if (!groups.has(key)) groups.set(key, []); groups.get(key).push(item); });
+        [...visible].sort((a, b) => dateKey(b).localeCompare(dateKey(a))).forEach(item => {
+          const key = item.date || (item.published || '').slice(0, 10) || 'Recent';
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key).push(item);
+        });
+        const todayString = new Date().toISOString().slice(0,10);
         timeline.innerHTML = [...groups.entries()].map(([date, items], gIdx) => {
           let itemsHtml = '';
           items.forEach((item, idx) => {
@@ -217,7 +222,8 @@
             const link = esc(item.link || '#');
             itemsHtml += `<article class="entry"><time class="entry-time">${time}</time><div class="card-wrap" aria-expanded="false"><div class="card"><div class="card-header"><button class="card-toggle" type="button" aria-label="Expand story"></button><h2><a href="${link}" target="_blank" rel="noopener">${title}</a></h2>${item.link ? `<a class="read-link" href="${link}" target="_blank" rel="noopener">Read original ↗</a>` : ''}</div><div class="card-meta"><span class="source">${source}</span><span class="dot">·</span><span>${category}</span></div><div class="card-peek">${peek}</div><div class="card-body"><p class="summary">${esc(item.summary || 'No summary supplied by the source.')}</p></div><div class="card-footer"><span class="details">Source-linked reporting</span></div></div></div></article>`;
           });
-          return `<section class="day" data-date="${esc(date)}"><header class="day-header" type="button"><h2 class="day-label">${esc(formatDate(date))}${items.length ? `<span class="quiet"> — ${items.length} update${items.length === 1 ? '' : 's'}</span></h2>` : '</h2>'}</header>${itemsHtml}</section>`;
+          const dayClass = date === todayString ? '' : 'class="collapsed"';
+          return `<section class="day" data-date="${esc(date)}" ${dayClass}><header class="day-header" type="button"><h2 class="day-label">${esc(formatDate(date))}${items.length ? `<span class="quiet"> — ${items.length} update${items.length === 1 ? '' : 's'}</span></h2>` : '</h2>'}</header>${itemsHtml}</section>`;
         }).join('');
         applyDayCollapse();
         applyCardExpand();
@@ -228,7 +234,15 @@
       const cardExpandKey = (id) => `conflict/card-expand/${id}`;
       const toggleAllBtn = document.getElementById('toggle-all');
 
-      function applyDayCollapse(){ timeline.querySelectorAll('.day').forEach(d => { if (localStorage.getItem(dayCollapseKey(d.dataset.date)) === '1') d.classList.add('collapsed'); }); }
+            function applyDayCollapse(){
+        timeline.querySelectorAll('.day').forEach(d => {
+          const saved = localStorage.getItem(dayCollapseKey(d.dataset.date));
+          if (saved !== null) {
+            if (saved === '1') d.classList.add('collapsed');
+            else d.classList.remove('collapsed');
+          }
+        });
+      }
       function applyCardExpand(){ timeline.querySelectorAll('.card-wrap').forEach(c => { const saved = localStorage.getItem(cardExpandKey(c.querySelector('a')?.href || '')); if (saved === '1') c.setAttribute('aria-expanded', 'true'); }); }
       function updateToggleAll(){ toggleAllBtn && (toggleAllBtn.textContent = timeline.querySelector('.day.collapsed') ? 'Expand all' : 'Collapse all'); }
 
